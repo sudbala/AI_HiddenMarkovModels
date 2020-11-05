@@ -1,8 +1,18 @@
-
+from Maze import Maze
+import numpy as np
+import random
 
 class model:
 
-    def __init__(self, mazefile):
+    def __init__(self, maze_file_name):
+        self.maze = Maze(maze_file_name)
+
+        # Colors
+        self.color_matrix = np.zeros((self.maze.width, self.maze.height))
+        self.color_dict = {1: 'r', 2: 'g', 3: 'y', 4: 'b'}
+
+
+        self.init_maze()
         pass
 
 
@@ -35,4 +45,12 @@ class model:
 
     # Initializes the maze, returns a color matrix, sequence of colors, the actual moves, all that jazz
     def init_maze(self):
-        pass
+        # Creation of a color matrix
+        for x in range(self.maze.width):
+            for y in range(self.maze.height):
+                # Loop through, assign a random color to every single cell
+                if self.maze.is_floor(x, y):
+                    color = self.color_dict[random.randint(1, 4)]
+                    self.color_matrix[x][y] = color
+
+model = model()

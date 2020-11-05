@@ -1,14 +1,14 @@
 # Import statements
 import numpy as np
-import model as model
+from model import model
 
 # Filtering Algorithm
 
 
 class filter:
 
-    def __init__(self, model):
-        self.model = model
+    def __init__(self, HMM):
+        self.model = HMM
 
     # Normalize to get the alpha value
     def normalize(self, new_state_estimate):
