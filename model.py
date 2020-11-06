@@ -4,12 +4,18 @@ import random
 
 class model:
 
-    def __init__(self, maze_file_name):
+    def __init__(self, maze_file_name, move_limit):
+        self.maze_file_name = maze_file_name
         self.maze = Maze(maze_file_name)
 
         # Colors
-        self.color_matrix = np.zeros((self.maze.width, self.maze.height))
+        self.color_matrix = np.zeros((self.maze.height, self.maze.width))
         self.color_dict = {1: 'r', 2: 'g', 3: 'y', 4: 'b'}
+
+        # Moves
+        self.move_dict = {1: 'N', 2: 'E', 3: 'S', 4: 'W'}
+        self.move_limit = move_limit
+
 
 
         self.init_maze()
@@ -45,12 +51,21 @@ class model:
 
     # Initializes the maze, returns a color matrix, sequence of colors, the actual moves, all that jazz
     def init_maze(self):
-        # Creation of a color matrix
-        for x in range(self.maze.width):
-            for y in range(self.maze.height):
-                # Loop through, assign a random color to every single cell
-                if self.maze.is_floor(x, y):
-                    color = self.color_dict[random.randint(1, 4)]
-                    self.color_matrix[x][y] = color
+        # Creation of a color matrix. We have to realize that the maze works on the coordinate plane whereas a matrix
+        # works on x being the row and y being the column. So it is slightly different, but we can use corresponding
+        for x in range(self.maze.height):
+            for y in range(self.maze.width):
+                # Loop through, assign a random color (number) to every single cell
+                print(self.maze.is_floor(1, 0))
+                if self.maze.is_floor(y, x):
+                    self.color_matrix[x][y] = random.randint(1, 4)
 
-model = model()
+        # Now we want to generate a list of moves that the robot would actually take
+        for i in range(self.move_limit):
+
+
+
+
+model = model("maze1.maz")
+print(model.color_matrix)
+
