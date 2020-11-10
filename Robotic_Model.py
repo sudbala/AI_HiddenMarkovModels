@@ -16,7 +16,9 @@ class Robotic_Model(model):
 
         # Maze Work
         self.maze = Maze(maze_file_name)
+        self.initial_location = initial_position
         self.location = initial_position
+        self.locations = []
 
         # Colors
         self.color_matrix = np.zeros((self.maze.height, self.maze.width))
@@ -30,8 +32,10 @@ class Robotic_Model(model):
         self.move_limit = move_limit
         self.moves = []
 
+        # Maze initialization, makes a color matrix, color sequence, everything needed for the works
         self.init_maze()
 
+        # Get the things needed for the actual model that will be filtered
         update_matrices = self.get_update_matrices()
         transition_model = self.get_transition_model()
         prior_matrix = self.get_prior_matrix()
@@ -53,9 +57,9 @@ class Robotic_Model(model):
                 for y in range(self.maze.height):
                     # find out if the color is the color we want. If so, 0.88, if not, 0.04
                     if self.color_matrix[self.maze.height - 1 - y][x] == color:
-                        color_vector[x*self.maze.width + y] = 0.88
+                        color_vector[x*self.maze.height + y] = 0.88
                     else:
-                        color_vector[x*self.maze.width + y] = 0.04
+                        color_vector[x*self.maze.height + y] = 0.04
             # Add this to dictionary
             update_matrices[self.color_dict[color]] = color_vector * np.identity(len(color_vector))
         # Return dictionary
@@ -77,7 +81,7 @@ class Robotic_Model(model):
                 if self.maze.is_floor(x, y):
                     # Now loop through neighbors, keep track of how many walls to determine the prob of staying
                     # If we want (3,3), the last pos to map to 15th or last row, we use following equation
-                    row = x * self.maze.width + y
+                    row = x * self.maze.height + y
                     neighbors = [(0, 1), (0, -1), (1, 0), (-1, 0)]
 
                     for neighbor in neighbors:
@@ -91,11 +95,11 @@ class Robotic_Model(model):
                         else:
                             if neighbor[0] == 0:
                                 # This means, we moved in the y direction
-                                col = self.maze.width*x + new_y
+                                col = self.maze.height*x + new_y
                                 transition_model[row][col] = 0.25
                             else:
                                 # This means, that we moved in the x direction
-                                col = self.maze.width*new_x + y
+                                col = self.maze.height*new_x + y
                                 transition_model[row][col] = 0.25
         # Now we just return the model
         return transition_model
@@ -109,7 +113,7 @@ class Robotic_Model(model):
         # Loop through all positions
         for x in range(self.maze.width):
             for y in range(self.maze.height):
-                row = x * self.maze.width + y
+                row = x * self.maze.height + y
                 # If a floor, increment floor count and set matrix to 1
                 if self.maze.is_floor(x, y):
                     prior_matrix[row] = 1
@@ -144,6 +148,7 @@ class Robotic_Model(model):
 
             if self.maze.is_floor(self.location[0] + robot_move[0], self.location[1] + robot_move[1]):
                 self.location = (self.location[0] + robot_move[0], self.location[1] + robot_move[1])
+            self.locations.append(self.location)
             # Obtain actual color at the spot. First we grab all colors, remove the one we know, use numpy
             actual_color = self.color_matrix[self.maze.height - 1 - self.location[1]][self.location[0]]
             color_array = self.colors.copy()
